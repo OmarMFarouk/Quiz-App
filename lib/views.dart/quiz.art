@@ -1,0 +1,118 @@
+import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:quizlets/models/questions_model.dart';
+import 'package:quizlets/models/answers_model.dart';
+import 'package:quizlets/src/app_navigator.dart';
+
+import '../components/answer_tile.dart';
+import '../components/sub_button.dart';
+
+class QuizPage extends StatefulWidget {
+  const QuizPage({super.key, required this.levelNumber});
+  final int levelNumber;
+
+  @override
+  State<QuizPage> createState() => _QuizPageState();
+}
+
+class _QuizPageState extends State<QuizPage> {
+  check() {
+    if (widget.levelNumber == 1) {
+      return level1QnA;
+    }
+  }
+
+  final controller = PageController(initialPage: 1);
+  bool isTapped = false;
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+        appBar: AppBar(
+          title: Text(
+            "Level ${widget.levelNumber.toString()}",
+            style: GoogleFonts.nunito(
+                color: const Color(0xFF37E9BB), fontWeight: FontWeight.bold),
+          ),
+          centerTitle: true,
+          toolbarHeight: 40,
+          elevation: 0,
+          backgroundColor: Colors.transparent,
+        ),
+        backgroundColor: const Color(0xFF1F1147),
+        body: Padding(
+          padding: const EdgeInsets.all(30.0),
+          child: PageView.builder(
+              controller: controller,
+              itemCount: levelOne.length,
+              itemBuilder: (context, index) {
+                return Stack(
+                  children: levelOne.map((e) {
+                    return Column(
+                      children: [
+                        Text(
+                          "${index + 1}/10",
+                          style: GoogleFonts.nunito(
+                              color: const Color(0xFF37E9BB),
+                              fontWeight: FontWeight.bold),
+                        ),
+                        Text(
+                          e.text.toString(),
+                          style: GoogleFonts.nunito(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 20),
+                        ),
+                        Container(
+                          width: double.infinity,
+                          height: MediaQuery.of(context).size.height * 0.25,
+                          margin: const EdgeInsets.symmetric(vertical: 15),
+                          decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(50),
+                              image: const DecorationImage(
+                                fit: BoxFit.fill,
+                                image: NetworkImage(
+                                  "https://images.pond5.com/cartoon-animation-planets-solar-system-footage-054328233_iconl.jpeg",
+                                ),
+                              )),
+                        ),
+                        Expanded(
+                          child: ListView(
+                            physics: NeverScrollableScrollPhysics(),
+                            children: e.listNumber.map((e) {
+                              return AnswersTile(
+                                isCorrect: e.isCorrect,
+                                number: e.number,
+                                isChoosen: isTapped,
+                                text: e.text,
+                                onTap: () {
+                                  setState(() {
+                                    isTapped = true;
+                                  });
+                                },
+                              );
+                            }).toList(),
+                          ),
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            SubButton(
+                              onTap: () {},
+                              text: "Previous",
+                            ),
+                            SubButton(
+                              onTap: () => controller.animateTo(index + 2,
+                                  duration: Duration(milliseconds: 10),
+                                  curve: Curves.easeInOut),
+                              text: "Next",
+                            )
+                          ],
+                        ),
+                      ],
+                    );
+                  }).toList(),
+                );
+              }),
+        ));
+  }
+}
